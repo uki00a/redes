@@ -28,9 +28,25 @@ export class APIServer {
     this.#app.use(middleware)
   }
 
-  listen(port: number): void {
-    this.#abort = new AbortController()
-    this.#listenPromise = this.#app.listen({ port, signal: this.#abort.signal })
+  listen(port: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      function onListen(): void {
+        cleanup()
+        resolve()
+      }
+      function onError(error: unknown): void {
+        cleanup()
+        reject(error)
+      }
+      const cleanup = () => {
+        this.#app.removeEventListener("listen", onListen)
+        this.#app.removeEventListener("error", onError)
+      }
+      this.#app.addEventListener("listen", onListen, { once: true });
+      this.#app.addEventListener("error", onError, { once: true })
+      this.#abort = new AbortController()
+      this.#listenPromise = this.#app.listen({ port, signal: this.#abort.signal })
+    })
   }
 
   async close(): Promise<void> {
@@ -52,7 +68,7 @@ export class APIServer {
       await this.#activeRedis.quit()
     }
     this.#activeRedis = await connect({
-      hostname: request.hostname ?? 'localhost',
+      hostname: request.hostname ?? '127.0.0.1',
       port: request.port ?? 6379
     })
     ctx.response.body = { ok: true }

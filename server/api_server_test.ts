@@ -5,9 +5,9 @@ Deno.test('[api/api_server]: GET /keys', async () => {
   const server = new APIServer('/api')
   try {
     const port = 3000
-    server.listen(port)
+    await server.listen(port)
     {
-      const res = await fetch(`http://localhost:${port}/api/connections`, {
+      const res = await fetch(`http://127.0.0.1:${port}/api/connections`, {
         method: 'POST',
         body: '{}',
         headers: { 'Content-Type': 'text/json' }
@@ -17,7 +17,7 @@ Deno.test('[api/api_server]: GET /keys', async () => {
     }
 
     {
-      const res = await fetch(`http://localhost:${port}/api/keys`)
+      const res = await fetch(`http://127.0.0.1:${port}/api/keys`)
       assertEquals(res.status, 200)
       const payload = await res.json()
       assert(payload)
