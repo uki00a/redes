@@ -42,7 +42,7 @@ export class APIServer {
         this.#app.removeEventListener("listen", onListen)
         this.#app.removeEventListener("error", onError)
       }
-      this.#app.addEventListener("listen", () => resolve(), { once: true });
+      this.#app.addEventListener("listen", onListen, { once: true });
       this.#app.addEventListener("error", onError, { once: true })
       this.#abort = new AbortController()
       this.#listenPromise = this.#app.listen({ port, signal: this.#abort.signal })
