@@ -68,7 +68,7 @@ export class APIServer {
       await this.#activeRedis.quit()
     }
     this.#activeRedis = await connect({
-      hostname: request.hostname ?? 'localhost',
+      hostname: request.hostname ?? '127.0.0.1',
       port: request.port ?? 6379
     })
     ctx.response.body = { ok: true }
